@@ -1,96 +1,82 @@
 package com.saferide.config;
 
-import com.saferide.jwt.JwtAccessDeniedHandler;
-import com.saferide.jwt.JwtAuthFilter;
-import com.saferide.jwt.JwtAuthenticationEntryPoint;
-import com.saferide.jwt.JwtUtil;
-import lombok.AllArgsConstructor;
+import com.saferide.jwt.TokenAuthenticationFilter;
+import com.saferide.jwt.TokenExceptionFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
+@RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
-public class SecurityConfig  {
+@EnableMethodSecurity
+public class SecurityConfig {
+
+    private final TokenAuthenticationFilter tokenAuthenticationFilter;
     private final CustomUserDetailsService customUserDetailsService;
-    private final JwtUtil jwtUtil;
-    private final JwtAccessDeniedHandler accessDeniedHandler;
-    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
     @Value("${cors.allowed-origins}")
     private String allowedOrigins;
 
-    private static final String[] AUTH_WHITELIST = {
-            "/h2-console/**"
-            ,"/favicon.ico"
-            ,"/register"
-            ,"/login"
-            ,"/profile"
-            ,"/items"
-            ,"/items/**"
-            ,"/orders/**"
-    };
-
     @Bean
-    @ConditionalOnProperty(name = "spring.h2.console.enabled",havingValue = "true")
-    public WebSecurityCustomizer configureH2ConsoleEnable() {
+    public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
-                .requestMatchers(PathRequest.toH2Console());
+                .requestMatchers("/error", "/favicon.ico");
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        //CSRF, CORS
-        http.csrf((csrf) -> csrf.disable());
-        http.cors(Customizer.withDefaults());
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)
+                .headers(c -> c.frameOptions(
+                        HeadersConfigurer.FrameOptionsConfig::disable).disable())
+                .sessionManagement(c ->
+                        c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-        //세션 관리 상태 없음으로 구성, Spring Security가 세션 생성 or 사용 X
-        http.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(
-                SessionCreationPolicy.STATELESS));
+                .authorizeHttpRequests(request ->
+                        request.requestMatchers(
+                                        new AntPathRequestMatcher("/"),
+                                        new AntPathRequestMatcher("/auth/**"),
+                                        new AntPathRequestMatcher("/h2-console/**"),
+                                        new AntPathRequestMatcher("/ws")
+                                ).permitAll()
+                                .anyRequest().authenticated()
+                )
 
-        //FormLogin, BasicHttp 비활성화
-        http.formLogin((form) -> form.disable());
-        http.httpBasic(AbstractHttpConfigurer::disable);
+                .addFilterBefore(tokenAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new TokenExceptionFilter(), tokenAuthenticationFilter.getClass())
 
-
-        //JwtAuthFilter를 UsernamePasswordAuthenticationFilter 앞에 추가
-        http.addFilterBefore(new JwtAuthFilter(customUserDetailsService, jwtUtil), UsernamePasswordAuthenticationFilter.class);
-
-        http.exceptionHandling((exceptionHandling) -> exceptionHandling
-                .authenticationEntryPoint(authenticationEntryPoint)
-                .accessDeniedHandler(accessDeniedHandler)
-        );
-
-        // 권한 규칙 작성
-        http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers(AUTH_WHITELIST).permitAll()
-                //@PreAuthrization을 사용할 것이기 때문에 모든 경로에 대한 인증처리는 Pass
-                //.anyRequest().permitAll()
-                .anyRequest().authenticated()
-        );
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+                        .accessDeniedHandler(new CustomAccessDeniedHandler()));
 
         return http.build();
     }
 
-    // CORS 설정을 HttpSecurity에 통합 (Spring Security 6.1 이상에 맞게 변경)
+    // CORS 설정을 HttpSecurity에 통합
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
@@ -111,4 +97,12 @@ public class SecurityConfig  {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.userDetailsService(customUserDetailsService)
+                .passwordEncoder(passwordEncoder());
+        return authenticationManagerBuilder.build();
+    }
 }

@@ -1,43 +1,56 @@
 package com.saferide.entity;
 
 import com.saferide.audit.BaseTimeEntity;
-import com.saferide.config.CustomUserInfoDto;
+import com.saferide.dto.MemberEditRequest;
 import jakarta.persistence.*;
-import lombok.*;
-import java.util.List;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
-@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+@Entity
 public class Member extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "MEMBER_ID")
     private Long id;
 
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
-
-    @Column(name = "name", nullable = false)
+    @Column(nullable = false, length = 30)
     private String name;
 
-    @Column(name = "PASSWORD", nullable = false)
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "ROLE", nullable = false)
-    private RoleType role;
+    @Column(nullable = false, length = 20, unique = true)
+    private String email;
 
-    public static CustomUserInfoDto customUserToDto(Member member){
-        return CustomUserInfoDto.builder()
-                .id(member.id)
-                .email(member.email)
-                .name(member.name)
-                .password(member.password)
-                .role(member.role)
-                .build();
+    @Column(nullable = false, unique = true)
+    private String memberKey;
+
+    @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    private Role role;
+
+    @Embedded
+    private Address address;
+
+    @Builder
+    public Member(String name, String password, String email, String memberKey, Role role, Address address) {
+        this.name = name;
+        this.password = password;
+        this.email = email;
+        this.memberKey = memberKey;
+        this.role = role;
+        this.address = address;
     }
+
+    public void updateMember(MemberEditRequest request) {
+        this.name = request.name();
+
+        if (request.address() != null) {
+            this.address = request.address().toEntity();
+        }
+    }
+
 }

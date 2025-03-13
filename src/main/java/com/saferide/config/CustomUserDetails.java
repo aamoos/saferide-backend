@@ -1,30 +1,25 @@
 package com.saferide.config;
 
+import com.saferide.entity.Member;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import java.util.ArrayList;
+
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Collections;
 
 @Getter
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
-    private final CustomUserInfoDto member;
+    private final Member member; // CustomUserInfoDto 대신 Member 엔티티 사용
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<String> roles = new ArrayList<>();
-        roles.add("ROLE_" + member.getRole().toString());
-
-
-        return roles.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        // Role에 따라 권한 부여
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + member.getRole()));
     }
 
     @Override
@@ -34,9 +29,8 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return member.getId().toString();
+        return member.getEmail(); // ID 대신 이메일을 사용하는 경우
     }
-
 
     @Override
     public boolean isAccountNonExpired() {
