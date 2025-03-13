@@ -1,0 +1,30 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE}
+    include: oauth
+  datasource:
+    url: jdbc:p6spy:h2:mem:safeRide
+    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create  # ?? create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+jwt:
+  expiration_time: 86400000 #1?
+  secret: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
+
+cors:
+  allowed-origins: "http://localhost:3000"
