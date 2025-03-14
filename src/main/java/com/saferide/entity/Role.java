@@ -3,6 +3,9 @@ package com.saferide.entity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 회원 권한
+ */
 @Getter
 @RequiredArgsConstructor
 public enum Role {

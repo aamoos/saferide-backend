@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
+/**
+ * push 발송 controller
+ */
 @RestController
 @RequiredArgsConstructor
 public class FcmController {

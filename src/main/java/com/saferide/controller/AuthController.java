@@ -28,6 +28,12 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final MemberService memberService;
 
+    /**
+     * 로그인
+     * @param loginDto
+     * @param response
+     * @return
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDto loginDto, HttpServletResponse response) {
         // Authenticate the user
@@ -49,6 +55,12 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponse(accessToken));
     }
 
+    /**
+     * 로그아웃
+     * @param refreshToken
+     * @param response
+     * @return
+     */
     @DeleteMapping("/logout")
     public ResponseEntity<Void> logout(@CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletResponse response) {
         tokenService.deleteRefreshToken(tokenService.getMemberKey(refreshToken));
@@ -56,6 +68,12 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * refresh token으로 access
+     * @param refreshToken
+     * @param response
+     * @return
+     */
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshAccessToken(@CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletResponse response) {
         if (refreshToken == null || refreshToken.isEmpty()) {
@@ -72,6 +90,11 @@ public class AuthController {
         }
     }
 
+    /**
+     * 회원가입
+     * @param signUpDto
+     * @return
+     */
     @PostMapping("/signup")
     public ResponseEntity<String> registerUser(@Valid @RequestBody SignUpDto signUpDto) {
         memberService.registerMember(signUpDto);
