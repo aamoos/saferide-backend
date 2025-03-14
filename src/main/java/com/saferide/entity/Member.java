@@ -46,10 +46,10 @@ public class Member extends BaseTimeEntity {
     }
 
     public void updateMember(MemberEditRequest request) {
-        this.name = request.name();
+        this.name = request.getName();
 
-        if (request.address() != null) {
-            this.address = request.address().toEntity();
+        if (request.getAddress() != null) {
+            this.address = request.getAddress().toEntity();
         }
     }
 

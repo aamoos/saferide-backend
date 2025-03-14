@@ -1,9 +1,12 @@
 package com.saferide.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
-public record MemberEditRequest(
-        @NotBlank String name,
-        AddressDto address
-) {
+@Data
+public class MemberEditRequest {
+    @NotBlank
+    private String name;
+
+    private AddressDto address;
 }

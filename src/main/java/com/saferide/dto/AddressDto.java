@@ -3,18 +3,19 @@ package com.saferide.dto;
 import com.saferide.entity.Address;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
+import lombok.Data;
 
 @Builder
-public record AddressDto(
-        @NotBlank
-        String roadAddress,
+@Data
+public class AddressDto {
+    @NotBlank
+    private String roadAddress;
 
-        @NotBlank
-        String addressDetail,
+    @NotBlank
+    private String addressDetail;
 
-        @NotBlank
-        String zipcode
-) {
+    @NotBlank
+    private String zipcode;
 
     public static AddressDto fromEntity(Address address) {
         return AddressDto.builder()
