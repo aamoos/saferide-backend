@@ -24,6 +24,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Configuration
@@ -36,6 +37,10 @@ public class SecurityConfig {
 
     @Value("${cors.allowed-origins}")
     private String allowedOrigins;
+
+    private final List<String> whiteList = List.of(
+            "/", "/login", "/logout", "/refresh-token", "/signup", "/h2-console/**", "/ws", "/error", "/favicon.ico"
+    );
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -50,17 +55,7 @@ public class SecurityConfig {
                         c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(request ->
-                        request.requestMatchers(
-                                        new AntPathRequestMatcher("/"),
-                                        new AntPathRequestMatcher("/login"),
-                                        new AntPathRequestMatcher("/logout"),
-                                        new AntPathRequestMatcher("/refresh-token"),
-                                        new AntPathRequestMatcher("/signup"),
-                                        new AntPathRequestMatcher("/h2-console/**"),
-                                        new AntPathRequestMatcher("/ws"),
-                                        new AntPathRequestMatcher("/error"),
-                                        new AntPathRequestMatcher("/favicon.ico")
-                                ).permitAll()
+                        request.requestMatchers(whiteList.toArray(new String[0])).permitAll()
                                 .anyRequest().authenticated()
                 )
 
