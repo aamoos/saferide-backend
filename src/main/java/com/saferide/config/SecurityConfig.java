@@ -38,12 +38,6 @@ public class SecurityConfig {
     private String allowedOrigins;
 
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring()
-                .requestMatchers("/error", "/favicon.ico");
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -63,7 +57,9 @@ public class SecurityConfig {
                                         new AntPathRequestMatcher("/refresh-token"),
                                         new AntPathRequestMatcher("/signup"),
                                         new AntPathRequestMatcher("/h2-console/**"),
-                                        new AntPathRequestMatcher("/ws")
+                                        new AntPathRequestMatcher("/ws"),
+                                        new AntPathRequestMatcher("/error"),
+                                        new AntPathRequestMatcher("/favicon.ico")
                                 ).permitAll()
                                 .anyRequest().authenticated()
                 )
