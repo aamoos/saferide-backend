@@ -23,7 +23,7 @@ spring:
       path: /h2-console
 
 jwt:
-  key: c3ByaW5nLWJvb3QtYXBpLWp3dC1zZWNyZXQta2V5LXN1cGVyLXNlY3JldC15ZXMteWVzLXllcy0yNAo=
+  key: ${JWT_KEY}
 
 cors:
   allowed-origins: "http://localhost:3000"
