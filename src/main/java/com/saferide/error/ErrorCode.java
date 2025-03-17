@@ -16,7 +16,8 @@ public enum ErrorCode {
     INVALID_JWT_SIGNATURE(UNAUTHORIZED, "잘못된 JWT 시그니처입니다."),
 
     // member
-    MEMBER_NOT_FOUND(NOT_FOUND, "회원을 찾을 수 없w습니다."),
+    MEMBER_NOT_FOUND(NOT_FOUND, "회원을 찾을 수 없습니다."),
+    INVALID_PASSWORD(UNAUTHORIZED, "잘못된 비밀번호입니다."),
 
     // global
     RESOURCE_LOCKED(LOCKED, "자원이 잠겨있어 접근할 수 없습니다."),

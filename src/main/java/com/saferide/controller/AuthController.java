@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/auth")
 public class AuthController {
 
     private final TokenService tokenService;
@@ -36,23 +35,8 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDto loginDto, HttpServletResponse response) {
-        // Authenticate the user
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
-        );
-
-        // Store the authentication in the SecurityContext
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // Generate the JWT tokens
-        String accessToken = tokenProvider.generateAccessToken(authentication);
-        String refreshToken = tokenProvider.generateRefreshToken(authentication, accessToken);
-
-        // Save refresh token in the response cookie
-        CookieUtil.setRefreshTokenCookie(response, refreshToken);
-
         // Return the access token in the response
-        return ResponseEntity.ok(new LoginResponse(accessToken));
+        return ResponseEntity.ok(new LoginResponse(memberService.login(loginDto, response)));
     }
 
     /**

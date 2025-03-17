@@ -11,4 +11,11 @@ public class TestController {
         return "ok";
     }
 
+    @GetMapping("/login")
+    public String login(){
+        System.out.println("여기타니?");
+        return "ok";
+    }
+
+
 }
