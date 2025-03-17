@@ -10,7 +10,7 @@
 ## 2. 주요 기능
 ### ✅ 실시간 하차 알림
 - 유치원생이 지정된 정류장에서 내리면 학부모에게 즉시 알림 전송  
-- **알림 방식**: 모바일 앱, 문자 메시지, 카카오톡 등 선택 가능  
+- **알림 방식**: 푸시 발송 기능
 
 ### ✅ GPS 기반 위치 추적
 - 버스의 **실시간 위치**를 지도에서 확인 가능  
@@ -35,13 +35,14 @@
 ## 🛠️ 기술 스택
 - **Frontend**: Vue 3, Vuetify  
 - **Backend**: Spring Boot, Spring Security, Spring Data JPA, JWT, Gradle  
-- **Database**: PostgreSQL  
+- **Database**: PostgreSQL
+- **Native**: Android (Java)
 - **Deployment**: Vercel (Frontend), Render (Backend)  
 
 ## 📌 주요 기능
-✅ **(기능 1)** - 설명  
-✅ **(기능 2)** - 설명  
-✅ **(기능 3)** - 설명  
+✅ **(기능 1)** - Fcm을 이용한 푸시 발송 
+✅ **(기능 2)** - 지도 기능  
+✅ **(기능 3)** - 출결 관리 기능
 
 ## 📸 스크린샷
 (스크린샷 이미지 추가)
