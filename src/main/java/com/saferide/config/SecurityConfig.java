@@ -2,6 +2,9 @@ package com.saferide.config;
 
 import com.saferide.jwt.TokenAuthenticationFilter;
 import com.saferide.jwt.TokenExceptionFilter;
+import com.saferide.oauth2.CustomOAuth2UserService;
+import com.saferide.oauth2.OAuth2FailureHandler;
+import com.saferide.oauth2.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +14,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,7 +21,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
@@ -32,6 +33,8 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private final CustomOAuth2UserService oAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final TokenAuthenticationFilter tokenAuthenticationFilter;
     private final CustomUserDetailsService customUserDetailsService;
 
@@ -57,6 +60,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(whiteList.toArray(new String[0])).permitAll()
                                 .anyRequest().authenticated()
+                )
+
+                .oauth2Login(oauth ->
+                        oauth.userInfoEndpoint(c -> c.userService(oAuth2UserService))
+                                .successHandler(oAuth2SuccessHandler)
+                                .failureHandler(new OAuth2FailureHandler())
                 )
 
                 .addFilterBefore(tokenAuthenticationFilter,

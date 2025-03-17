@@ -38,14 +38,17 @@ public class Member extends BaseTimeEntity {
     @Embedded
     private Address address;
 
+    private String profile;
+
     @Builder
-    public Member(String name, String password, String email, String memberKey, Role role, Address address) {
+    public Member(String name, String password, String email, String memberKey, Role role, Address address, String profile) {
         this.name = name;
         this.password = password;
         this.email = email;
         this.memberKey = memberKey;
         this.role = role;
         this.address = address;
+        this.profile = profile;
     }
 
     public void updateMember(MemberEditRequest request) {

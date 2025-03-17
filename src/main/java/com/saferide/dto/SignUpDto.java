@@ -3,6 +3,7 @@ package com.saferide.dto;
 import com.saferide.entity.Address;
 import com.saferide.entity.Member;
 import com.saferide.entity.Role;
+import com.saferide.oauth2.KeyGenerator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.validation.constraints.Email;
@@ -54,7 +55,7 @@ public class SignUpDto {
                 .email(signUpDto.getEmail())
                 .name(signUpDto.getName())
                 .password(passwordEncoder.encode(signUpDto.getPassword()))
-                .memberKey(UUID.randomUUID().toString())
+                .memberKey(KeyGenerator.generateKey())
                 .role(Role.USER)
                 .address(new Address(signUpDto.getRoadAddress(), signUpDto.getAddressDetail(), signUpDto.getZipcode()))
                 .build();
