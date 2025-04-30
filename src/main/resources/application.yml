@@ -30,3 +30,6 @@ cors:
 
 oauth2:
   redirect-uri: "http://localhost:3000/oauth2/redirect"
+
+server:
+  port: 8080

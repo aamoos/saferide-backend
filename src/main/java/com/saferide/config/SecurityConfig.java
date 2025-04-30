@@ -42,7 +42,7 @@ public class SecurityConfig {
     private String allowedOrigins;
 
     private final List<String> whiteList = List.of(
-            "/", "/login", "/logout", "/refresh-token", "/signup", "/h2-console/**", "/ws", "/error", "/favicon.ico"
+            "/", "/login", "/logout", "/refresh-token", "/signup", "/h2-console/**", "/ws", "/error", "/favicon.ico", "/oauth2/**", "/login/oauth2/code/**"
     );
 
     @Bean
